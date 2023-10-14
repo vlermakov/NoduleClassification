@@ -50,12 +50,15 @@ torch.manual_seed(random_seed)
 np.random.seed(random_seed)
 
 directory = './monai_data'
+if not os.path.exists(directory):
+    os.makedirs(directory)
+    
 root_dir = tempfile.mkdtemp() if directory is None else directory
 cache_dir = './training_cache'
 
 CANCER_NODULES_DATASET_DIR = '/media/vlermakov/data/UCSDNodules/Metastatic/'
 #PRE_PROCESSED_DIRECTORY = '/home/vlermakov/Development/Nodules/Nodule-Detection-LUNA2016/processed_data_full_range/'
-PRE_PROCESSED_SUBFOLDER = './processed_data_full_range_075mm/'
+PRE_PROCESSED_SUBFOLDER = '/home/vlermakov/Development/Nodules/Nodule-Detection-LUNA2016/processed_data_full_range_075mm/'
 #PRE_PROCESSED_SUBFOLDER = './processed_data_unetr_range/'
 #PRE_PROCESSED_SUBFOLDER = './processed_data_full_range_1mm/'
 
@@ -80,7 +83,7 @@ for p in datalist:
     else:
         unprocessed_scans.append(p)
 
-if(len(unprocessed_scans) > 0):
+if(False and len(unprocessed_scans) > 0):
     pre_process_transform = Compose(
         [
             LoadImaged(keys=["image"], ensure_channel_first=True, image_only=False),

@@ -130,8 +130,9 @@ class ArterysAnnotations(Annotations):
                     # Reshape the data based on height, width and depth in the patch
                     patch_data = decompressed_data.reshape((patch['depth'],patch['height'],patch['width']))
 
-                    # Inscribe the patch into the target volume
-                    self.target_volume[z:z+patch['depth'],y:y+patch['height'],x:x+patch['width']] = patch_data
+                    # Inscribe the patch into the target volume, setting 1 where 1 is in the patch, making sure to not overwrite existing values
+                    self.target_volume[z:z+patch['depth'],y:y+patch['height'],x:x+patch['width']] = np.maximum(self.target_volume[z:z+patch['depth'],y:y+patch['height'],x:x+patch['width']],patch_data)
+                    
 
                     tmp_buffer = np.zeros(self.target_volume.shape,dtype=np.int8)
                     tmp_buffer[z:z+patch['depth'],y:y+patch['height'],x:x+patch['width']] = patch_data
