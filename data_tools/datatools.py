@@ -151,15 +151,14 @@ def load_LUNA16_datalist(LUNA16_DATASET_DIR, PROCESSED_SUBFOLDER = None):
     return LUNA16_datalist
 
 def load_cancer_nodules_datalist(CANCER_NODULES_DATASET_DIR, PROCESSED_SUBFOLDER = None):
-    cancer_nodules_datalist = []
 
     # Read in the dataset definition
     dataset = pd.read_csv(os.path.join(CANCER_NODULES_DATASET_DIR, "dataset.csv"), dtype={'MRN': str})
 
-    # Ignore class = 2
-    dataset = dataset[dataset.label != 1]
-    # All class 2 set to class 1
-    dataset.loc[dataset.label == 2, 'label'] = 1
+    return load_cancer_nodules_datalist_from_dataframe(dataset, CANCER_NODULES_DATASET_DIR, PROCESSED_SUBFOLDER)
+
+def load_cancer_nodules_datalist_from_dataframe(dataset, CANCER_NODULES_DATASET_DIR, PROCESSED_SUBFOLDER = None):
+    cancer_nodules_datalist = []
 
     # Only use part of the dataset where "process" is 1
     dataset = dataset[dataset.process == 1]
