@@ -27,12 +27,22 @@ def upsample_minority_class(data):
         positive_samples_upsampled = random.choices(positive_samples, k=num_negative_samples)
         return positive_samples_upsampled + negative_samples
 
+
 def balance_and_split_data(data, train_set_proportion = 0.5):
     # Upsample the minority class
     data = upsample_minority_class(data)
 
     # Split the data into test and validation sets
-    return split_data(data,train_set_proportion)
+    test_set,validation_set = split_data(data,train_set_proportion)
+
+    # Remove items that have duplicate patch ids in the validation set
+    validation_set = pd.DataFrame(validation_set)
+    validation_set = validation_set.drop_duplicates(subset=['patch_id'], keep='first')
+    validation_set = validation_set.to_dict('records') 
+
+    return test_set, validation_set
+
+
 
 
 def split_data(data, train_set_proportion=0.5):

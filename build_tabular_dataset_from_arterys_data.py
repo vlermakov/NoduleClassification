@@ -3,8 +3,7 @@ import pandas as pd
 import multiprocessing as mp
 import generaltools as gt
 import tqdm
-import trainingblock as tb
-from trainingtools import processScan
+
 import os
 import glob
 
@@ -81,6 +80,7 @@ if __name__ == '__main__':
                     # If no json file was found, skip this patch_id_stub
                     if(len(json_file) == 0):
                         print("No json file found for patch_id_stub {}".format(patch_id_stub))
+                        continue
                     else:
                         json_file = json_file[0]
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                                 'Phonetic_ID': phonetic_id,
                                 'Patch_ID': patch_id,
                                 'Slice_Thickness': current_testcase['thickness'].values[0],
-                                'Accession_Number': current_testcase['Accession_Number'].values[0],
+                                #'Accession_Number': current_testcase['Accession_Number'].values[0],
                                 'label': current_testcase['label'].values[0],
                                 'process': current_testcase['process'].values[0],
                                 'volume': current_testcase['volume'].values[0],
@@ -182,9 +182,6 @@ if __name__ == '__main__':
                             df_patch_features = pd.concat([df_patch_features,pd.DataFrame(table_row)], ignore_index=True)
 
     df_patch_features.to_csv("patch_features_new.csv", index=False)
-
-
-
 
 
 
