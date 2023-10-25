@@ -7,6 +7,8 @@ import pandas as pd
 
 import torch
 
+from collections import defaultdict
+from sklearn.model_selection import StratifiedKFold
 
 def upsample_minority_class(data):
     # Get the number of positive and negative samples
@@ -30,20 +32,55 @@ def upsample_minority_class(data):
 
 def balance_and_split_data(data, train_set_proportion = 0.5):
     # Upsample the minority class
-    data = upsample_minority_class(data)
-
+    
     # Split the data into test and validation sets
-    test_set,validation_set = split_data(data,train_set_proportion)
+    test_set,validation_set = split_data(data,train_set_proportion,folds = 5)
 
-    # Remove items that have duplicate patch ids in the validation set
-    validation_set = pd.DataFrame(validation_set)
-    validation_set = validation_set.drop_duplicates(subset=['patch_id'], keep='first')
-    validation_set = validation_set.to_dict('records') 
+    # Upsample the minority class in the test and validation sets
+    test_set = upsample_minority_class(test_set)
 
     return test_set, validation_set
 
+def k_fold_split_data(data, n_folds):
+    # Create dictionaries to store positive and negative examples by 'mrn'
+    positive_examples = defaultdict(list)
+    negative_examples = defaultdict(list)
+
+    # Split examples into positive and negative based on keys
+    for example in data:
+        if example['label'] >= 1:
+            positive_examples[example['mrn']].append(example)
+        elif example['label'] == 0:
+            negative_examples[example['mrn']].append(example)
+
+    # Combine positive and negative examples
+    all_examples = {}
+    for mrn in set(positive_examples.keys()) | set(negative_examples.keys()):
+        all_examples[mrn] = positive_examples[mrn] + negative_examples[mrn]
 
 
+    # Create labels for each example
+    labels = []
+    examples = []
+    for mrn, mrn_examples in all_examples.items():
+        labels.extend([1] * len(positive_examples[mrn]) + [0] * len(negative_examples[mrn]))
+        examples.extend(mrn_examples)
+
+    # Create stratified k-fold object
+    skf = StratifiedKFold(n_splits=n_folds, shuffle=True)
+
+    # Initialize lists to store train and test sets
+    train_sets = []
+    test_sets = []
+
+    # Split the data into train and test sets
+    for train_index, test_index in skf.split(examples, labels):
+        train_set = [examples[i] for i in train_index]
+        test_set = [examples[i] for i in test_index]
+        train_sets.append(train_set)
+        test_sets.append(test_set)
+
+    return train_sets, test_sets
 
 def split_data(data, train_set_proportion=0.5):
     # Group data by MRN
