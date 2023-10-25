@@ -34,7 +34,7 @@ def balance_and_split_data(data, train_set_proportion = 0.5):
     # Upsample the minority class
     
     # Split the data into test and validation sets
-    test_set,validation_set = split_data(data,train_set_proportion,folds = 5)
+    test_set,validation_set = split_data(data,train_set_proportion)
 
     # Upsample the minority class in the test and validation sets
     test_set = upsample_minority_class(test_set)
